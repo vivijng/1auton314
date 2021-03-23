@@ -1,0 +1,71 @@
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/*    Module:       main.cpp                                                  */
+/*    Author:       VEX                                                       */
+/*    Created:      Wed Dec 04 2019                                           */
+/*    Description:  This program will turn right 90 degrees using the         */
+/*                  Inertial Sensor.                                          */
+/*                                                                            */
+/*                                                                            */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+
+// ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]               [Type]        [Port(s)]
+// Controller1          controller                    
+// leftFront            motor         11              
+// inertialSensor       inertial      6               
+// leftBack             motor         10              
+// rightFront           motor         8               
+// rightBack            motor         18              
+// ---- END VEXCODE CONFIGURED DEVICES ----
+
+#include "vex.h"
+
+using namespace vex;
+
+void display()
+{
+  while(true)
+  {
+    Brain.Screen.setCursor(1,1);
+    Brain.Screen.print("Heading %d: ", inertialSensor.heading(degrees));
+
+    wait(15, msec);
+    Brain.Screen.clearScreen();
+  }
+}
+
+void headingTurn(double goalHeading)
+{
+  inertialSensor.calibrate();
+ 
+  while (inertialSensor.isCalibrating()) {
+    wait(100, msec);
+  }
+
+  while(inertialSensor.heading(degrees) != goalHeading)
+  {
+    leftFront.spin(forward);
+    leftBack.spin(forward);
+    rightFront.spin(reverse);
+    rightBack.spin(reverse);
+  }
+ 
+  leftFront.stop();
+  leftBack.stop();
+  rightFront.stop();
+  rightBack.stop();
+
+  wait(1, seconds);
+}
+
+int main() {
+  vexcodeInit();
+  
+  thread t(display);
+
+  headingTurn(90.0);
+
+}
